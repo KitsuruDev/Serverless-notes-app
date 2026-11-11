@@ -1,0 +1,11 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+.terraformrc
+frontend/node_modules/
+frontend/dist/
+.env
+.env.*
+.venv/
+*.txt
