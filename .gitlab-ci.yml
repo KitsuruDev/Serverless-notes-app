@@ -4,7 +4,6 @@ stages:
   - verify
 
 variables:
-  # host.docker.internal, чтобы раннер видел Floci на хосте Windows
   S3_ENDPOINT: "http://host.docker.internal:4566"
   S3_BUCKET: "notes-frontend-bucket"
   VITE_REDIRECT_URI: "http://localhost:4566/notes-frontend-bucket/callback.html"
@@ -16,16 +15,14 @@ build-frontend:
   script:
     - cd frontend
     - npm ci
-    # Сборка с относительными путями
     - npm run build -- --base=./
-    # Физическая копия для OAuth callback
     - cp dist/index.html dist/callback.html
   artifacts:
     paths:
       - frontend/dist/
     expire_in: 1 hour
   cache:
-    key: node-modules-$CI_COMMIT_REF_SLUG
+    key: "node-modules-$CI_COMMIT_REF_SLUG"
     paths:
       - frontend/node_modules/
 
@@ -49,9 +46,7 @@ verify-publish:
   before_script:
     - apk add --no-cache curl bash
   script:
-    - |
-      BASE="$S3_ENDPOINT/$S3_BUCKET"
-      echo "=== Проверка заголовков index.html ==="
-      curl -sI "$BASE/index.html" | grep -Ei '^(HTTP|Content-Type|Content-Disposition)'
-      echo "=== Проверка callback.html ==="
-      curl -sI "$BASE/callback.html" | grep -Ei '^(HTTP|Content-Type|Content-Disposition)'
+    - echo "=== Проверка заголовков index.html ==="
+    - curl -sI "$S3_ENDPOINT/$S3_BUCKET/index.html" | grep -Ei "^(HTTP|Content-Type|Content-Disposition)"
+    - echo "=== Проверка callback.html ==="
+    - curl -sI "$S3_ENDPOINT/$S3_BUCKET/callback.html" | grep -Ei "^(HTTP|Content-Type|Content-Disposition)"
