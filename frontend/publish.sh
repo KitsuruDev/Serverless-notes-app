@@ -17,10 +17,14 @@ upload() {
     *.json) ct="application/json" ;;
     *.svg) ct="image/svg+xml" ;;
   esac
+  
+  # добавлен заголовок Content-Security-Policy в запрос curl
   curl -sf -X PUT -T "dist/$rel" \
     -H "Content-Type: $ct" \
     -H "Content-Disposition: inline" \
+    -H "Content-Security-Policy: default-src 'self'; connect-src 'self' http://localhost:4566; style-src 'self' 'unsafe-inline'; script-src 'self';" \
     "$BASE/$rel"
+    
   echo " uploaded: $rel ($ct)"
 }
 

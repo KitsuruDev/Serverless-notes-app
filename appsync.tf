@@ -3,7 +3,7 @@ resource "aws_appsync_graphql_api" "notes" {
   authentication_type = "AMAZON_COGNITO_USER_POOLS"
 
   user_pool_config {
-    user_pool_id   = aws_cognito_user_pool.notes.id
+    user_pool_id   = module.identity.user_pool_id  # раньше было aws_cognito_user_pool.notes.id
     default_action = "ALLOW"
   }
 

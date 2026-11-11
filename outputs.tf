@@ -3,11 +3,11 @@ output "graphql_endpoint" {
 }
 
 output "cognito_user_pool_id" {
-  value = aws_cognito_user_pool.notes.id
+  value = module.identity.user_pool_id
 }
 
 output "cognito_client_id" {
-  value = aws_cognito_user_pool_client.web.id
+  value = module.identity.client_id
 }
 
 output "token_endpoint" {
