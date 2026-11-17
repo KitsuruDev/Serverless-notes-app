@@ -26,8 +26,8 @@
 
 const env = import.meta.env
 
-export const APPSYNC_API_ID = env.VITE_APPS_API_ID || '1a72a20c899b4a6ba288a7c819'
-export const COGNITO_CLIENT_ID = env.VITE_CLIENT_ID || '63cfce6b810344c08d27cdafae'
+export const APPSYNC_API_ID = env.VITE_APPS_API_ID || 'b0df45bb79c440c1958d1b2f26'
+export const COGNITO_CLIENT_ID = env.VITE_CLIENT_ID || 'c9f644666df149b98ebaf7d827'
 
 export const REDIRECT_URI =
   env.VITE_REDIRECT_URI || `${window.location.origin}/callback`

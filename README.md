@@ -20,9 +20,13 @@ aws configure set aws_secret_access_key test
 aws configure set region us-east-1
 ```
 
-### 2. Запуск эмулятора AWS (Floci)
+### 2. Запуск эмулятора и создание S3
 ```bash
+# Запуск Floci
 docker compose up -d
+
+# Создание S3-бакета для будущей публикации фронтенда
+awslocal --endpoint-url http://localhost:4566 s3 mb s3://notes-frontend-bucket
 ```
 
 ### 3. Развертывание инфраструктуры (Terraform)
@@ -45,18 +49,22 @@ cd frontend
 docker run --rm -it -p 5173:5173 -v "$(pwd):/app" -w /app -e TARGET=http://host.docker.internal:4566 node:20-alpine sh -c "npm install && npm run dev"
 ```
 
-## Проверка работоспособности (Smoke Test)
-1. Откройте браузер: **http://localhost:5173**
-2. Войдите в систему:
-   *   **Логин**: `dev@example.com`
-   *   **Пароль**: `Notes#2024`
-3. Создайте новую заметку. Если она появилась в списке и сохраняется после обновления страницы — **всё работает**.
+## Скрипты автоматизации
+
+В проекте предусмотрены вспомогательные скрипты для работы с приложением:
+
+*   **`smoke_test.sh`** — скрипт автоматической проверки. Он получает Access Token через Cognito (метод Admin Auth) и делает тестовый GraphQL-запрос к AppSync, чтобы убедиться, что вся цепочка работает. Запуск: `bash smoke_test.sh`.
+*   **`publish.sh`** — локальный скрипт для сборки фронтенда (с относительными путями) и загрузки файлов в S3 с правильными заголовками (`Content-Type`). Запуск: `bash frontend/publish.sh`.
+*   **`publish_from_artifact.sh`** — скрипт для CI/CD (GitLab). Он не собирает проект заново, а берет готовые файлы из папки `dist` (артефакты предыдущей джобы) и загружает их в S3.
 
 ## Остановка и очистка
 ```bash
-# Удалить инфраструктуру AWS
+# Удалить инфраструктуру AWS, созданную Terraform
 docker run --rm -v "$(pwd):/workspace" -v "${PWD}\.terraformrc:/tmp/.terraformrc" -e TF_CLI_CONFIG_FILE="/tmp/.terraformrc" -w /workspace hashicorp/terraform:latest destroy -auto-approve
 
-# Остановить Floci
+# Удалить S3-бакет и все файлы в нём
+awslocal --endpoint-url http://localhost:4566 s3 rb s3://notes-frontend-bucket --force
+
+# Остановить и удалить контейнеры Floci
 docker compose down
 ```
